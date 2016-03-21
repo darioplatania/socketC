@@ -28,5 +28,7 @@ gcc -g -Wall -DTRACE -o server_udp server_udp.c errlib.c sockwrap.c
 
 ```
 ### open two terminal and type
+```
 ./server_udp 'port_number' e.g. ./server -a 1500
 ./client_udp 'address' 'port_number' 'datagram ' e.g. ./client 127.0.0.1 1500 helloworld
+```
