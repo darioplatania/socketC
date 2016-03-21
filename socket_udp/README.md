@@ -22,7 +22,7 @@ recv to SERVER
 ```
 mkdir /path/to/your/project
 
-git clone git@bitbucket.org:darioplatania/socketC/socket_udp.git
+git clone git@bitbucket.org:darioplatania/socketC.git
 ```
 
 ### open terminal go to the project folder and type

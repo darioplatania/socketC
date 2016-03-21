@@ -22,7 +22,7 @@ recvfrom SERVER
 ```
 mkdir /path/to/your/project
 
-git clone git@bitbucket.org:darioplatania/socketC/stream_socket_tcp.git
+git clone git@bitbucket.org:darioplatania/socketC.git
 ```
 
 ### open terminal go to the project folder and type
