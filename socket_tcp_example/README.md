@@ -17,5 +17,7 @@ gcc -g -Wall -DTRACE -o server server.c errlib.c sockwrap.c
 
 ```
 ### open two terminal and type
+```
 ./server -a 'port_number' e.g. ./server -a 1500
 ./client 'address' 'port_number' e.g. ./client 127.0.0.1 1500
+```
