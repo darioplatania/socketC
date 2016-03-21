@@ -1,15 +1,19 @@
 # Client and Server UDP base example
 
 #SERVER STEP
-## created socket
-## listening for udp_packet
-## recv to CLIENT
-## send to CLIENT
+```
+created socket
+listening for udp_packet
+recv to CLIENT
+send to CLIENT
+```
 
 #CLIENT STEP
-## created socket
-## send to SERVER
-## recv to SERVER
+```
+created socket
+send to SERVER
+recv to SERVER
+```
 
 # Ready
 
