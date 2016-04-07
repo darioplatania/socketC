@@ -54,10 +54,10 @@ int         recv_size;
 
   prog_name = argv[0];
 
-  /*controllo immissione e.g. ./server_udp 'indirizzo' 'porta'*/
+  /*controllo immissione e.g. ./server_udp 'indirizzo' */
 
   if (argc!=2)
-    err_quit ("wrong number of parameters e.g. ./client 'port'", prog_name);
+    err_quit ("wrong number of parameters e.g. ./server 'address'", prog_name);
     tport_n=atoi(argv[1]);
 
   /*creazione della socket(famiglia,tipo,protocollo)*/
