@@ -120,6 +120,7 @@ if(argc!=2)
       j++;
     }
       file[j]='\0';
+      /* alla fine salvo in file l'effettivo nome cercato,ripulito dalla parte +OK ecc-- */
       trace( err_msg ("(%s) Nome file effettivo: %s", prog_name,file) );
 
      /*APRE IL FILE*/
