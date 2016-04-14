@@ -64,7 +64,7 @@ FILE        *fp;
 char        buf[200];
 char        *res;
 char 				dest[SIZE_MAX_BUFF];
-char 				err_var[SIZE_MAX_BUFF];
+char 				err_var[5];
 char				first_char[] = "+OK";
 char				cr[] = "\r";
 char				lf[] = "\n";
