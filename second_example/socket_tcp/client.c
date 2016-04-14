@@ -50,7 +50,8 @@ char 				dest[36];
 char				cr[] = "\r";
 char				lf[] = "\n";
 int         len;
-char 				server_reply[SIZE_MAX_BUFF],date[SIZE_MAX_BUFF];
+//char 				server_reply[SIZE_MAX_BUFF];
+char        date[SIZE_MAX_BUFF];
 FILE        *fp;
 
 /*
@@ -86,6 +87,9 @@ saddr.sin_addr.s_addr	= htonl(saddr.sin_addr.s_addr);
 /*Connessione*/
 Connect(listenfd,(struct sockaddr*)&saddr,sizeof(saddr));
 
+while(1)
+	{
+
 	printf("Digita un numero:\n[1] Richiedi File\n[0] Quit\n");
 	scanf("%d", &numero);
 
@@ -94,6 +98,7 @@ Connect(listenfd,(struct sockaddr*)&saddr,sizeof(saddr));
   case 0:
 		   printf("Bye!\n");
 			 Close(listenfd);
+			 exit(1);
 		   break;
 
 	case 1:
@@ -129,7 +134,7 @@ Connect(listenfd,(struct sockaddr*)&saddr,sizeof(saddr));
 
 	int byte_ricevuti = Recv(listenfd,date,SIZE_MAX_BUFF,0);
 	date[byte_ricevuti] = '\0';
-	printf("Ricevuto: %s\n",date);
+	printf("Ricevuto e copiato: %s\n",date);
 
 	/*METTO IN PROVA.TXT IL CONTENUTO DEL FILE RICEVUTO DAL SERVER*/
 	fp = fopen( nomefile , "w" );
@@ -137,6 +142,8 @@ Connect(listenfd,(struct sockaddr*)&saddr,sizeof(saddr));
 
 	/* chiude il file */
 	fclose(fp);
+
+}
 
 /*chiusura del socket*/
 Close(listenfd);
