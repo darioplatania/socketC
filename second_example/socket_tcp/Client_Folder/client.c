@@ -47,7 +47,7 @@ int 			  result;
 int 				numero;
 char				nomefile[SIZE_MAX_BUFF];
 char 				dest[SIZE_MAX_BUFF];
-char        err_var[SIZE_MAX_BUFF];
+//char        err_var[SIZE_MAX_BUFF];
 char				cr[] = "\r";
 char				lf[] = "\n";
 int         len;
