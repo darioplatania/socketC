@@ -64,6 +64,7 @@ FILE        *fp;
 char        buf[200];
 char        *res;
 char 				dest[SIZE_MAX_BUFF];
+char 				err_var[SIZE_MAX_BUFF];
 char				first_char[] = "+OK";
 char				cr[] = "\r";
 char				lf[] = "\n";
@@ -125,11 +126,15 @@ if(argc!=2)
 
      /*APRE IL FILE*/
     fp=fopen(file, "r");
-    if( fp==NULL )
+      if( fp==NULL )
         {
-            perror("File Inesistente");
+            sprintf(err_var,"%s","-ERR");
+            strcat(err_var,cr);                         /*concateno cr*/
+            strcat(err_var,lf);                        /*concateno lf*/
+            trace( err_msg ("(%s)%s", prog_name,err_var) );
+            Send(ac,err_var,sizeof(err_var),0);
         }
-        else
+      else
         {
             trace( err_msg ("(%s) File Esistente", prog_name) );
 
@@ -164,27 +169,31 @@ if(argc!=2)
              //strcat(dest,buf);                    /*concateno contenuto del file*/
              trace( err_msg ("(%s) Il File da inviare è: %s", prog_name,dest) ); /*IN dest ORA SI TROVA +OK CR LF Byte Timestamp Filename*/
             }
+
             /* chiude il file */
             fclose(fp);
 
-        }
+            /* SEND VERSO IL CLIENT DI TUTTO IL CONTENUTO DI DEST --> +OK CR LF Byte Timestamp Filename */
+            /* per ora invio solo il contenuto del file senza tutto dest */
 
-       /* SEND VERSO IL CLIENT DI TUTTO IL CONTENUTO DI DEST --> +OK CR LF Byte Timestamp Filename */
-       /* per ora invio solo il contenuto del file senza tutto dest */
-       
-       /*
-       Send(ac,dest,strlen(dest),0);
-       trace( err_msg ("(%s) Invio... %s", prog_name,dest) );
-       */
+            /*
+            Send(ac,dest,strlen(dest),0);
+            trace( err_msg ("(%s) Invio... %s", prog_name,dest) );
+            */
 
-       /* SEND VERSO IL CLIENT CON IL CONTENUTO DI BUFF --> Filename */
-       Send(ac,buf,strlen(buf),0);
-       trace( err_msg ("(%s) Invio contenuto... %s", prog_name,buf) );
+            /* SEND VERSO IL CLIENT CON IL CONTENUTO DI BUFF --> Filename */
+            Send(ac,buf,strlen(buf),0);
+            trace( err_msg ("(%s) Invio contenuto... %s", prog_name,buf) );
+
+        }/*chiusura else*/
+
+
 
 
     /*CLOSE*/
 		//trace( err_msg ("(%s) - connection closed by %s", prog_name, (err==0)?"client":"server") );
-  }
+
+  }/*chiusura while*/
 
   return 0;
 }

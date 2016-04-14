@@ -45,8 +45,9 @@ struct      sockaddr_in	saddr;
 int 			  listenfd;
 int 			  result;
 int 				numero;
-char				nomefile[30];
-char 				dest[36];
+char				nomefile[SIZE_MAX_BUFF];
+char 				dest[SIZE_MAX_BUFF];
+char        err_var[SIZE_MAX_BUFF];
 char				cr[] = "\r";
 char				lf[] = "\n";
 int         len;
@@ -96,33 +97,48 @@ while(1)
 	switch (numero) {
 
   case 0:
-		   printf("Bye!\n");
-			 Close(listenfd);
-			 exit(1);
-		   break;
+			   printf("Bye!\n");
+				 Close(listenfd);
+				 exit(1);
+			   break;
 
 	case 1:
-	   printf("Inserisci nome file: ");
-		 scanf("%s",nomefile);
-		 *dest = '\0';
-		 sprintf(dest,"%s","GET ");
-		 strcat(dest,nomefile);
-		 strcat(dest,cr);
-		 strcat(dest,lf);
-		 //printf("Dopo la concatenazione: %s\n",dest);  //GET nomefile.txt
-		 len = strlen(dest);
+		   printf("Inserisci nome file: ");
+			 scanf("%s",nomefile);
+			 *dest = '\0';
+			 sprintf(dest,"%s","GET ");
+			 strcat(dest,nomefile);
+			 strcat(dest,cr);
+			 strcat(dest,lf);
+			 //printf("Dopo la concatenazione: %s\n",dest);  //GET nomefile.txt
+			 len = strlen(dest);
 
-		 /*INVIO IL NOME DEL FILE RICHIESTO AL SERVER*/
-		 Send(listenfd,dest,len,0);
-		 printf("File richiesto: %s",dest);
+			 /*INVIO IL NOME DEL FILE RICHIESTO AL SERVER*/
+			 Send(listenfd,dest,len,0);
+			 printf("File richiesto: %s",dest);
 
-		 /*RICEVO IL CONTENUTO DEL FILE*/
+			 /*RICEVO IL CONTENUTO DEL FILE*/
+			 int byte_ricevuti = Recv(listenfd,date,SIZE_MAX_BUFF,0);
+			 date[byte_ricevuti] = '\0';
 
-	   break;
+			 if(date[0] == '-'){
+				 printf("File richiesto non presente...bye\n");
+				 Close(listenfd);
+				 exit(1);
+			 }
+			 else{
+				 printf("Ricevuto e copiato: %s\n",date);
+
+				 /*METTO IN PROVA.TXT IL CONTENUTO DEL FILE RICEVUTO DAL SERVER*/
+				 fp = fopen( nomefile , "w" );
+				 fwrite(date , 1 ,byte_ricevuti , fp );
+				 break;
+			 }
+			 break;
 
 	default:
-	   printf("Scelta non corretta!\n");
-	   break;
+		   printf("Scelta non corretta!\n");
+		   break;
 }
 
   /*RICEVO DAL SERVER*/
@@ -131,14 +147,6 @@ while(1)
 	Recv(listenfd,server_reply,SIZE_MAX_BUFF,0);
 	printf("Ricezione completa: %s\n",server_reply);
 	*/
-
-	int byte_ricevuti = Recv(listenfd,date,SIZE_MAX_BUFF,0);
-	date[byte_ricevuti] = '\0';
-	printf("Ricevuto e copiato: %s\n",date);
-
-	/*METTO IN PROVA.TXT IL CONTENUTO DEL FILE RICEVUTO DAL SERVER*/
-	fp = fopen( nomefile , "w" );
-  fwrite(date , 1 ,byte_ricevuti , fp );
 
 	/* chiude il file */
 	fclose(fp);
