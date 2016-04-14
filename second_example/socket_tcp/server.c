@@ -128,6 +128,7 @@ if(argc!=2)
     fp=fopen(file, "r");
       if( fp==NULL )
         {
+            /* se non esiste il file richiesto, il server risponde con il messaggio di errore */
             sprintf(err_var,"%s","-ERR");
             strcat(err_var,cr);                         /*concateno cr*/
             strcat(err_var,lf);                        /*concateno lf*/
