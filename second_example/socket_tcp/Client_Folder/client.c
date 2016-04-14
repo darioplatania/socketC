@@ -116,7 +116,6 @@ while(1)
 			 /*INVIO IL NOME DEL FILE RICHIESTO AL SERVER*/
 			 Send(listenfd,dest,len,0);
 			 printf("File richiesto: %s",dest);
-
 			 /*RICEVO IL CONTENUTO DEL FILE*/
 			 int byte_ricevuti = Recv(listenfd,date,SIZE_MAX_BUFF,0);
 			 date[byte_ricevuti] = '\0';
@@ -132,26 +131,17 @@ while(1)
 				 /*METTO IN PROVA.TXT IL CONTENUTO DEL FILE RICEVUTO DAL SERVER*/
 				 fp = fopen( nomefile , "w" );
 				 fwrite(date , 1 ,byte_ricevuti , fp );
-				 break;
+				 /* chiude il file */
+				 fclose(fp);
 			 }
 			 break;
 
 	default:
 		   printf("Scelta non corretta!\n");
 		   break;
-}
+	 }
 
-  /*RICEVO DAL SERVER*/
-
-	/*
-	Recv(listenfd,server_reply,SIZE_MAX_BUFF,0);
-	printf("Ricezione completa: %s\n",server_reply);
-	*/
-
-	/* chiude il file */
-	fclose(fp);
-
-}
+ }
 
 /*chiusura del socket*/
 Close(listenfd);
