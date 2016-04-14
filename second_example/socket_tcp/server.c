@@ -153,7 +153,7 @@ if(argc!=2)
               printf("Last modified time: %s", ctime(&attr.st_mtime));
 
              /*---prendo il contenuto del file e gli incateno +OK CR LF Byte Timestamp Filename---*/
-             *dest = '\0';
+             //*dest = '\0';
              sprintf(dest,"%s" "%s" "%s" "%d" "%s" "%s",first_char,cr,lf,size,ctime(&attr.st_mtime),buf);
              //sprintf(dest,"%s","+OK");
              //strcat(dest,first_char);                  /*concateno +OK*/
@@ -169,12 +169,18 @@ if(argc!=2)
 
         }
 
-       /*SEND VERSO IL CLIENT*/
-
+       /* SEND VERSO IL CLIENT DI TUTTO IL CONTENUTO DI DEST --> +OK CR LF Byte Timestamp Filename */
+       /* per ora invio solo il contenuto del file senza tutto dest */
+       
        /*
-       Send(listenfd, buf, strlen(buf),0);
-       trace ( err_msg("(%s) Ho inviato al Client: '%s'", prog_name,buf) );
-      */
+       Send(ac,dest,strlen(dest),0);
+       trace( err_msg ("(%s) Invio... %s", prog_name,dest) );
+       */
+
+       /* SEND VERSO IL CLIENT CON IL CONTENUTO DI BUFF --> Filename */
+       Send(ac,buf,strlen(buf),0);
+       trace( err_msg ("(%s) Invio contenuto... %s", prog_name,buf) );
+
 
     /*CLOSE*/
 		//trace( err_msg ("(%s) - connection closed by %s", prog_name, (err==0)?"client":"server") );
