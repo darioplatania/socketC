@@ -140,8 +140,8 @@ if(argc!=2)
             trace( err_msg ("(%s) File Esistente", prog_name) );
 
             /* legge e stampa ogni riga */
-            while(1)
-            {
+            // while(1)
+            // {
              res=fread(buf,1, 200, fp);
              if( res==0 )
                break;
@@ -169,7 +169,7 @@ if(argc!=2)
              //strcat(dest,timestamp_sec)
              //strcat(dest,buf);                    /*concateno contenuto del file*/
              trace( err_msg ("(%s) Il File da inviare è: %s\n", prog_name,dest) ); /*IN dest ORA SI TROVA +OK CR LF Byte Timestamp Filename*/
-            }
+            // }
 
             /* chiude il file */
             fclose(fp);
