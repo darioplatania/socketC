@@ -62,7 +62,7 @@ char        file[SIZE_MAX_BUFF+1];
 int         i,j;
 FILE        *fp;
 char        buf[200];
-char        *res;
+size_t      res;
 char 				dest[SIZE_MAX_BUFF];
 char 				err_var[5];
 char				first_char[] = "+OK";
@@ -142,10 +142,10 @@ if(argc!=2)
             /* legge e stampa ogni riga */
             while(1)
             {
-             res=fgets(buf, 200, fp);
-             if( res==NULL )
+             res=fread(buf,1, 200, fp);
+             if( res==0 )
                break;
-              trace( err_msg ("(%s) Il File contiene: %s", prog_name,buf) );
+              trace( err_msg ("(%s) Il File contiene:\n%s", prog_name,buf) );
 
               /*PRENDO IL FILE CHE MI ARRIVA E VEDO LA SUA DIMENSIONE*/
               struct stat st;
@@ -168,7 +168,7 @@ if(argc!=2)
              //strcat(dest,size);                     /*concateno byte_ (attenzione si deve fare il cast!)*/
              //strcat(dest,timestamp_sec)
              //strcat(dest,buf);                    /*concateno contenuto del file*/
-             trace( err_msg ("(%s) Il File da inviare è: %s", prog_name,dest) ); /*IN dest ORA SI TROVA +OK CR LF Byte Timestamp Filename*/
+             trace( err_msg ("(%s) Il File da inviare è: %s\n", prog_name,dest) ); /*IN dest ORA SI TROVA +OK CR LF Byte Timestamp Filename*/
             }
 
             /* chiude il file */
@@ -184,7 +184,7 @@ if(argc!=2)
 
             /* SEND VERSO IL CLIENT CON IL CONTENUTO DI BUFF --> Filename */
             Send(ac,buf,strlen(buf),0);
-            trace( err_msg ("(%s) Invio contenuto... %s", prog_name,buf) );
+            trace( err_msg ("(%s) Invio contenuto...\n%s", prog_name,buf) );
 
         }/*chiusura else*/
 

@@ -126,7 +126,7 @@ while(1)
 				 exit(1);
 			 }
 			 else{
-				 printf("Ricevuto e copiato: %s\n",date);
+				 printf("Ricevuto e copiato:\n%s",date);
 
 				 /*METTO IN PROVA.TXT IL CONTENUTO DEL FILE RICEVUTO DAL SERVER*/
 				 fp = fopen( nomefile , "w" );
