@@ -83,9 +83,9 @@ int main(int argc, char *argv[]) {
 	  }
 	  readn(listenfd, buffer, 4);
 	  size=ntohl(*((uint32_t*)buffer));
-	  printf("%u\n", size);
+	  printf("Dimensione in byte ricevuti dal server: %u\n", size);
 	  Recv(listenfd, buffer, 4,0);
-	  printf("%u\n", ntohl(*((uint32_t*)buffer)));
+	  printf("Timestamp ricevuto dal server: %u\n", ntohl(*((uint32_t*)buffer)));
 	  char lettura[1025];
 	  FILE *fp;
 	  fp=fopen(file, "wb");

@@ -39,17 +39,16 @@ struct        sockaddr_in	clientaddr;
 int 			    listenfd;
 int           ac;
 socklen_t     addrlen;
-char          lettura[255];
+char          read[255];
 char          sendbuff[1025];
 char          file[50];
 struct        stat sstr;
 int           i=0;
 int           j=0;
-
 int           size1;
 uint32_t      size,timestamp; //dimensione file
 FILE          *fp;
-int           bricevuti;
+int           byte_ricevuti;
 
 prog_name = argv[0];
 
@@ -85,17 +84,17 @@ while(1) {
 
 
 while(1){
-bricevuti=Recv(ac, lettura, 255, 0);
-lettura[bricevuti]='\0';
-if (lettura[0]=='Q') break;
-printf("%s", lettura);
+byte_ricevuti=Recv(ac, read, 255, 0);
+read[byte_ricevuti]='\0';
+if (read[0]=='Q') break;
+printf("File Richiesto: %s", read);
 j=4;
-for (i=0; i<bricevuti; i++){
-    if (lettura[j]=='\r') break;
-    file[i]=lettura[j];
+for (i=0; i<byte_ricevuti; i++){
+    if (read[j]=='\r') break;
+    file[i]=read[j];
     j++;}
     file[i]='\0';
-printf("%s\n", file);
+printf("Nome file effettivo: %s\n", file);
 fp=fopen(file, "r");
 if (fp==NULL) {
 printf("Il file non esiste!\n");
