@@ -61,49 +61,49 @@ int main(int argc, char *argv[]) {
 
 
   while(1) {
-  sprintf(buffer, "%s", "GET");
-  strcat(buffer, " ");
-  printf("Richiedi File: ");
-  scanf("%s", file);
-  strcat(buffer, file);
-  strcat(buffer, "\r\n");
-  Writen(listenfd, buffer, strlen(buffer));
-  int k=Readn(listenfd, buffer, 5);
-  if (k==0) {
-    printf("Connection Closed by Server");
-    break;
-  }
-  buffer[5]='\0';
-  printf("%s", buffer);
-  if (buffer[0]=='-') {
-    printf("File inesistente\n");
-    printf("%s\n", buffer);
-    close(listenfd);
-    break;
-  }
-  readn(listenfd, buffer, 4);
-  size=ntohl(*((uint32_t*)buffer));
-  printf("%u\n", size);
-  readn(listenfd, buffer, 4);
-  printf("%u\n", ntohl(*((uint32_t*)buffer)));
-  char lettura[1025];
-  FILE *fp;
-  fp=fopen(file, "wb");
-  while (size>0) {
-    if (size>=1024) {
-      readn(listenfd,lettura,1024);
-      size=size-1024;
-      fwrite(lettura, 1, 1024, fp);
-    } else {
-    readn(listenfd,lettura,size);
-    lettura[size]='\0';
-    //printf("%s", lettura);
-    fwrite(lettura, 1, size, fp);
-    fclose(fp);
-    size=0;
-  }
-}
-}
+	  sprintf(buffer, "%s", "GET");
+	  strcat(buffer, " ");
+	  printf("Richiedi File: ");
+	  scanf("%s", file);
+	  strcat(buffer, file);
+	  strcat(buffer, "\r\n");
+	  Send(listenfd, buffer, strlen(buffer),0);
+	  int k=Recv(listenfd, buffer, 5,0);
+	  if (k==0) {
+	    printf("Connection Closed by Server");
+	    break;
+	  }
+	  buffer[5]='\0';
+	  printf("%s", buffer);
+	  if (buffer[0]=='-') {
+	    printf("File inesistente\n");
+	    printf("%s\n", buffer);
+	    close(listenfd);
+	    break;
+	  }
+	  readn(listenfd, buffer, 4);
+	  size=ntohl(*((uint32_t*)buffer));
+	  printf("%u\n", size);
+	  Recv(listenfd, buffer, 4,0);
+	  printf("%u\n", ntohl(*((uint32_t*)buffer)));
+	  char lettura[1025];
+	  FILE *fp;
+	  fp=fopen(file, "wb");
+	  while (size>0) {
+	    if (size>=1024) {
+	      Recv(listenfd,lettura,1024,0);
+	      size=size-1024;
+	      fwrite(lettura, 1, 1024, fp);
+	    }
+			else {
+		    Recv(listenfd,lettura,size,0);
+		    lettura[size]='\0';
+		    fwrite(lettura, 1, size, fp);
+		    fclose(fp);
+		    size=0;
+	  }
+	}/*CHIUSURA PRIMA WHILE*/
+}/*CHIUSURA SECONDO WHILE*/
 close(listenfd);
 
 return 0;

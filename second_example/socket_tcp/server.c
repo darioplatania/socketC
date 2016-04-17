@@ -41,7 +41,7 @@ int           ac;
 socklen_t     addrlen;
 char          lettura[255];
 char          sendbuff[1025];
-char          nomefile[50];
+char          file[50];
 struct        stat sstr;
 int           i=0;
 int           j=0;
@@ -85,62 +85,56 @@ while(1) {
 
 
 while(1){
-bricevuti=recv(ac, lettura, 255, 0);
+bricevuti=Recv(ac, lettura, 255, 0);
 lettura[bricevuti]='\0';
 if (lettura[0]=='Q') break;
 printf("%s", lettura);
 j=4;
 for (i=0; i<bricevuti; i++){
     if (lettura[j]=='\r') break;
-    nomefile[i]=lettura[j];
+    file[i]=lettura[j];
     j++;}
-    nomefile[i]='\0';
-printf("%s\n", nomefile);
-fp=fopen(nomefile, "r");
+    file[i]='\0';
+printf("%s\n", file);
+fp=fopen(file, "r");
 if (fp==NULL) {
 printf("Il file non esiste!\n");
-send(ac, "-ERR\r\n", 6, 0);
+Send(ac, "-ERR\r\n", 6, 0);
 close(ac);
 break;
 }
-//il file esiste, spedisco +ok e la sua dimensione e timestamp
-send(ac, "+OK\r\n", 5, 0); //conferma
+/*FILE ESISTENTE--INVIO +OK CR LF*/
+Send(ac, "+OK\r\n", 5, 0);
 
-/* dimensione file */
-  stat(nomefile, &sstr);
-  /*if(res==-1) {
-    perror("Errore in lettura del file");
-    exit(1);
-  }*/
+  /*DIMENSIONE FILE*/
+  stat(file, &sstr);
 
-		/* determina la dimensione del file */
   size1=((uint32_t)sstr.st_size);
   printf("Numero di byte su file: %u\n", size1);
   size=htonl(((uint32_t)sstr.st_size));
-  send(ac, &size, 4,0); //mando la size
+  Send(ac, &size, 4,0); //mando la size
 
-
+  /*TIMESTAMP*/
   timestamp=((uint32_t)sstr.st_mtime);
   printf("Timestamp: %d\n", timestamp);
   timestamp=htonl(((uint32_t)sstr.st_mtime));
-  send(ac, &timestamp, 4,0); //mando il Timestamp
+  Send(ac, &timestamp, 4,0);
 
-//adesso leggo e mando il file
+  /*LEGGO IL FILE E LO MANDO A PEZZI DI 1024*/
   while (size1>0) {
     if (size1>=1024) {
       fread(sendbuff, 1, 1024, fp);
-      //printf("%s", sendbuff);
-      send(ac, sendbuff, 1024, 0);
+      Send(ac, sendbuff, 1024, 0);
       size1=size1-1024;
-    } else {
-  fread(sendbuff, 1, size1, fp);
-  //printf("%s", sendbuff);
-  send(ac, sendbuff, size1, 0);
-  fclose(fp);
-  size1=0;
-}
+    }
+    else {
+      fread(sendbuff, 1, size1, fp);
+      Send(ac, sendbuff, size1, 0);
+      fclose(fp);
+      size1=0;
+   }
   }
-}
-}
+}/*CHIUSURA SECONDO WHILE*/
+}/*CHIUSURA PRIMO WHILE*/
 
 }
