@@ -22,133 +22,89 @@ gcc -g -Wall -DTRACE -o client client.c errlib.c sockwrap.c
 
 #include "errlib.h"
 #include "sockwrap.h"
+char * prog_name;
 
-#define SIZE_MAX_BUFF 255
-/*-------------------------------------------------------------------------------
-CREAZIONE CLIENT CHE PRENDE DA TERMINALE I PARAMENTRI e.g. ./client -a 1500 127.0.0.1
-PASSAGGI:
-	CREAZIONE SOCKET
-	CHIUSURA SOCKET
--------------------------------------------------------------------------------*/
-char *prog_name;
-
-
-int main(int argc, char *argv[]){
-
-/*Apertura Connessione*/
-
-/*
-uint32_t 		   taddr_n; //= 127.0.0.1;
-*/
-uint16_t		tport_n; //= 1500;
-struct      sockaddr_in	saddr;
-int 			  listenfd;
-int 			  result;
-int 				numero;
-char				nomefile[SIZE_MAX_BUFF];
-char 				dest[SIZE_MAX_BUFF];
-//char        err_var[SIZE_MAX_BUFF];
-char				cr[] = "\r";
-char				lf[] = "\n";
-int         len;
-//char 				server_reply[SIZE_MAX_BUFF];
-char        date[SIZE_MAX_BUFF];
-FILE        *fp;
-
-/*
-char 				*msg;
-int 				len;
-*/
-
-prog_name = argv[0];
-
-/*creazione della socket(famiglia,tipo,protocollo)*/
-listenfd = Socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-
-if (argc!=3)
-		err_quit ("wrong number of parameters e.g. ./client 'address' 'port' ", prog_name);
-
-		//salviamo in result ciò che ritorna la inet_aton (1 se ok, 0 se errore) e ci gestiamo l'errore
-		result=inet_aton(argv[1],&(saddr.sin_addr));
-			if ( result == 0 )
-			{
-			err_sys ("(%s) error - connect() failed", prog_name);
-			}
-		tport_n=atoi(argv[2]); //conversione_porta
+int main(int argc, char *argv[]) {
+	uint16_t		  tport_n; //= 1500;
+	uint32_t 			size;
+  prog_name = 	argv[0];
+  int 					listenfd;
+	int 			    result;
+  char 					buffer[500];
+  char 					file[20];
+	struct        sockaddr_in	saddr;
 
 
-/*inizializzazione di famiglia,porta e indirizzo_destinatario(saddr)*/
-saddr.sin_family 	= AF_INET;
-saddr.sin_port   	= htons(tport_n);
-/*
-saddr.sin_addr.s_addr	= atoi(saddr.sin_addr.s_addr);
-saddr.sin_addr.s_addr	= htonl(saddr.sin_addr.s_addr);
-*/
+	prog_name = argv[0];
 
-/*Connessione*/
-Connect(listenfd,(struct sockaddr*)&saddr,sizeof(saddr));
+	/*creazione della socket(famiglia,tipo,protocollo)*/
+	listenfd = Socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-while(1)
-	{
+	if (argc!=3)
+			err_quit ("wrong number of parameters e.g. ./client 'address' 'port' ", prog_name);
 
-	printf("Digita un numero:\n[1] Richiedi File\n[0] Quit\n");
-	scanf("%d", &numero);
+			//salviamo in result ciò che ritorna la inet_aton (1 se ok, 0 se errore) e ci gestiamo l'errore
+			result=inet_aton(argv[1],&(saddr.sin_addr));
+				if ( result == 0 )
+				{
+				err_sys ("(%s) error - connect() failed", prog_name);
+				}
+			tport_n=atoi(argv[2]); //conversione_porta
 
-	switch (numero) {
 
-  case 0:
-			   printf("Bye!\n");
-				 Close(listenfd);
-				 exit(1);
-			   break;
+	/*inizializzazione di famiglia,porta e indirizzo_destinatario(saddr)*/
+	saddr.sin_family 	= AF_INET;
+	saddr.sin_port   	= htons(tport_n);
 
-	case 1:
-		   printf("Inserisci nome file: ");
-			 scanf("%s",nomefile);
-			 *dest = '\0';
-			 sprintf(dest,"%s","GET ");
-			 strcat(dest,nomefile);
-			 strcat(dest,cr);
-			 strcat(dest,lf);
-			 //printf("Dopo la concatenazione: %s\n",dest);  //GET nomefile.txt
-			 len = strlen(dest);
+	/*Connessione*/
+	Connect(listenfd,(struct sockaddr*)&saddr,sizeof(saddr));
 
-			 /*INVIO IL NOME DEL FILE RICHIESTO AL SERVER*/
-			 Send(listenfd,dest,len,0);
-			 printf("File richiesto: %s",dest);
-			 /*RICEVO IL CONTENUTO DEL FILE*/
-			 int byte_ricevuti = Recv(listenfd,date,SIZE_MAX_BUFF,0);
-			 date[byte_ricevuti] = '\0';
 
-			 if(date[0] == '-'){
-				 printf("File richiesto non presente...bye\n");
-				 Close(listenfd);
-				 exit(1);
-			 }
-			 else{
-				 printf("Ricevuto e copiato:\n%s",date);
-
-				 /*METTO IN PROVA.TXT IL CONTENUTO DEL FILE RICEVUTO DAL SERVER*/
-				 fp = fopen( nomefile , "w" );
-				 fwrite(date , 1 ,byte_ricevuti , fp );
-				 /* chiude il file */
-				 fclose(fp);
-			 }
-			 break;
-
-	default:
-		   printf("Scelta non corretta!\n");
-		   break;
-	 }
-
- }
-
-/*chiusura del socket*/
-Close(listenfd);
+  while(1) {
+  sprintf(buffer, "%s", "GET");
+  strcat(buffer, " ");
+  printf("Richiedi File: ");
+  scanf("%s", file);
+  strcat(buffer, file);
+  strcat(buffer, "\r\n");
+  Writen(listenfd, buffer, strlen(buffer));
+  int k=Readn(listenfd, buffer, 5);
+  if (k==0) {
+    printf("Connection Closed by Server");
+    break;
+  }
+  buffer[5]='\0';
+  printf("%s", buffer);
+  if (buffer[0]=='-') {
+    printf("File inesistente\n");
+    printf("%s\n", buffer);
+    close(listenfd);
+    break;
+  }
+  readn(listenfd, buffer, 4);
+  size=ntohl(*((uint32_t*)buffer));
+  printf("%u\n", size);
+  readn(listenfd, buffer, 4);
+  printf("%u\n", ntohl(*((uint32_t*)buffer)));
+  char lettura[1025];
+  FILE *fp;
+  fp=fopen(file, "wb");
+  while (size>0) {
+    if (size>=1024) {
+      readn(listenfd,lettura,1024);
+      size=size-1024;
+      fwrite(lettura, 1, 1024, fp);
+    } else {
+    readn(listenfd,lettura,size);
+    lettura[size]='\0';
+    //printf("%s", lettura);
+    fwrite(lettura, 1, size, fp);
+    fclose(fp);
+    size=0;
+  }
+}
+}
+close(listenfd);
 
 return 0;
-
 }
-
-
-/*-------------------------------------------------------------------------------*/
