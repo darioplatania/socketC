@@ -68,7 +68,24 @@ int main(int argc, char *argv[]) {
 	  strcat(buffer, file);
 	  strcat(buffer, "\r\n");
 	  Send(listenfd, buffer, strlen(buffer),0);
+		/*dopo 5 sec chiude se ci sono problemi */
+    struct timeval tv;
+    tv.tv_sec = 5;
+    tv.tv_usec = 0;
+    if (setsockopt(listenfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
+        perror("Error");
+    }
+		/*--------------------------------------*/
+
 	  int k=Recv(listenfd, buffer, 5,0);
+		/*dopo 5 sec chiude se ci sono problemi */
+		tv.tv_sec = 5;
+		tv.tv_usec = 0;
+		if (setsockopt(listenfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
+				perror("Error");
+		}
+		/*--------------------------------------*/
+
 	  if (k==0) {
 	    printf("Connection Closed by Server");
 	    break;
@@ -81,10 +98,25 @@ int main(int argc, char *argv[]) {
 	    close(listenfd);
 	    break;
 	  }
-	  readn(listenfd, buffer, 4);
+	  Recv(listenfd, buffer,4,0);
+		/*dopo 5 sec chiude se ci sono problemi */
+		tv.tv_sec = 5;
+		tv.tv_usec = 0;
+		if (setsockopt(listenfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
+				perror("Error");
+		}
+		/*--------------------------------------*/
+
 	  size=ntohl(*((uint32_t*)buffer));
 	  printf("Dimensione in byte ricevuti dal server: %u\n", size);
 	  Recv(listenfd, buffer, 4,0);
+		/*dopo 5 sec chiude se ci sono problemi */
+		tv.tv_sec = 5;
+		tv.tv_usec = 0;
+		if (setsockopt(listenfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
+				perror("Error");
+		}
+		/*--------------------------------------*/
 	  printf("Timestamp ricevuto dal server: %u\n", ntohl(*((uint32_t*)buffer)));
 	  char lettura[1025];
 	  FILE *fp;
@@ -92,11 +124,25 @@ int main(int argc, char *argv[]) {
 	  while (size>0) {
 	    if (size>=1024) {
 	      Recv(listenfd,lettura,1024,0);
+				/*dopo 5 sec chiude se ci sono problemi */
+				tv.tv_sec = 5;
+				tv.tv_usec = 0;
+				if (setsockopt(listenfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
+						perror("Error");
+				}
+				/*--------------------------------------*/
 	      size=size-1024;
 	      fwrite(lettura, 1, 1024, fp);
 	    }
 			else {
 		    Recv(listenfd,lettura,size,0);
+				/*dopo 5 sec chiude se ci sono problemi */
+				tv.tv_sec = 5;
+				tv.tv_usec = 0;
+				if (setsockopt(listenfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
+						perror("Error");
+				}
+				/*--------------------------------------*/
 		    lettura[size]='\0';
 		    fwrite(lettura, 1, size, fp);
 		    fclose(fp);
