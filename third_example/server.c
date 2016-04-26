@@ -85,7 +85,7 @@ while(1) {
 
   /*FACCIO LA FORK*/
   if((childpid=fork())<0)
-  printf("fork() failed");
+  err_msg("fork() failed");
     else if (childpid > 0)
     {
     /* processo padre */
@@ -104,7 +104,8 @@ while(1) {
     for (i=0; i<byte_ricevuti; i++){
         if (read[j]=='\r') break;
         file[i]=read[j];
-        j++;}
+        j++;
+      }
         file[i]='\0';
     printf("Nome file effettivo: %s\n", file);
     fp=fopen(file, "r");
