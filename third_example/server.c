@@ -49,6 +49,7 @@ int           size1;
 uint32_t      size,timestamp; //dimensione file
 FILE          *fp;
 int           byte_ricevuti;
+int           childpid;
 
 prog_name = argv[0];
 
@@ -82,58 +83,70 @@ while(1) {
   ac = Accept(listenfd, (struct sockaddr*) &clientaddr, &addrlen);
   trace ( err_msg("(%s) - new connection from client %s:%u", prog_name, inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port)));
 
-
-while(1){
-byte_ricevuti=Recv(ac, read, 255, 0);
-read[byte_ricevuti]='\0';
-if (read[0]=='Q') break;
-printf("File Richiesto: %s", read);
-j=4;
-for (i=0; i<byte_ricevuti; i++){
-    if (read[j]=='\r') break;
-    file[i]=read[j];
-    j++;}
-    file[i]='\0';
-printf("Nome file effettivo: %s\n", file);
-fp=fopen(file, "r");
-if (fp==NULL) {
-printf("Il file non esiste!\n");
-Send(ac, "-ERR\r\n", 6, 0);
-close(ac);
-break;
-}
-/*FILE ESISTENTE--INVIO +OK CR LF*/
-Send(ac, "+OK\r\n", 5, 0);
-
-  /*DIMENSIONE FILE*/
-  stat(file, &sstr);
-
-  size1=((uint32_t)sstr.st_size);
-  printf("Numero di byte su file: %u\n", size1);
-  size=htonl(((uint32_t)sstr.st_size));
-  Send(ac, &size, 4,0); //mando la size
-
-  /*TIMESTAMP*/
-  timestamp=((uint32_t)sstr.st_mtime);
-  printf("Timestamp: %d\n", timestamp);
-  timestamp=htonl(((uint32_t)sstr.st_mtime));
-  Send(ac, &timestamp, 4,0);
-
-  /*LEGGO IL FILE E LO MANDO A PEZZI DI 1024*/
-  while (size1>0) {
-    if (size1>=1024) {
-      fread(sendbuff, 1, 1024, fp);
-      Send(ac, sendbuff, 1024, 0);
-      size1=size1-1024;
+  /*FACCIO LA FORK*/
+  if((childpid=fork())<0)
+  printf("fork() failed");
+    else if (childpid > 0)
+    {
+    /* processo padre */
+    close(ac); /* chiudonsocket */
     }
-    else {
-      fread(sendbuff, 1, size1, fp);
-      Send(ac, sendbuff, size1, 0);
-      fclose(fp);
-      size1=0;
-   }
-  }
-}/*CHIUSURA SECONDO WHILE*/
-}/*CHIUSURA PRIMO WHILE*/
+    else
+    {
+    /* processo figlio */
+    close(listenfd); /* chiudo socket del padre */
+    while(1){
+    byte_ricevuti=Recv(ac, read, 255, 0);
+    read[byte_ricevuti]='\0';
+    if (read[0]=='Q') break;
+    printf("File Richiesto: %s", read);
+    j=4;
+    for (i=0; i<byte_ricevuti; i++){
+        if (read[j]=='\r') break;
+        file[i]=read[j];
+        j++;}
+        file[i]='\0';
+    printf("Nome file effettivo: %s\n", file);
+    fp=fopen(file, "r");
+    if (fp==NULL) {
+    printf("Il file non esiste!\n");
+    Send(ac, "-ERR\r\n", 6, 0);
+    close(ac);
+    break;
+    }
+    /*FILE ESISTENTE--INVIO +OK CR LF*/
+    Send(ac, "+OK\r\n", 5, 0);
 
+      /*DIMENSIONE FILE*/
+      stat(file, &sstr);
+
+      size1=((uint32_t)sstr.st_size);
+      printf("Numero di byte su file: %u\n", size1);
+      size=htonl(((uint32_t)sstr.st_size));
+      Send(ac, &size, 4,0); //mando la size
+
+      /*TIMESTAMP*/
+      timestamp=((uint32_t)sstr.st_mtime);
+      printf("Timestamp: %d\n", timestamp);
+      timestamp=htonl(((uint32_t)sstr.st_mtime));
+      Send(ac, &timestamp, 4,0);
+
+      /*LEGGO IL FILE E LO MANDO A PEZZI DI 1024*/
+      while (size1>0) {
+        if (size1>=1024) {
+          fread(sendbuff, 1, 1024, fp);
+          Send(ac, sendbuff, 1024, 0);
+          size1=size1-1024;
+        }
+        else {
+          fread(sendbuff, 1, size1, fp);
+          Send(ac, sendbuff, size1, 0);
+          fclose(fp);
+          size1=0;
+       }
+      }
+    }/*CHIUSURA SECONDO WHILE*/
+    exit(0);
+    }
+}/*CHIUSURA WHILE PRINCIPALE*/
 }
