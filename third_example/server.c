@@ -89,7 +89,7 @@ while(1) {
     else if (childpid > 0)
     {
     /* processo padre */
-    close(ac); /* chiudonsocket */
+    close(ac); /* chiudo socket */
     }
     else
     {
