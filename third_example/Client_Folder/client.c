@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
   char 					buffer[500];
   char 					file[20];
 	struct        sockaddr_in	saddr;
-	char					command;
+	struct				timeval tv;
 
 
 	prog_name = argv[0];
@@ -62,115 +62,135 @@ int main(int argc, char *argv[]) {
 
 
   while(1) {
-
-		printf("Inserisci Comandi G,Q,A\n");
-		scanf("%s",&command);
-
-		switch (command) {
-			case 'G':
-			case 'g':
-			sprintf(buffer, "%s", "GET");
-			strcat(buffer, " ");
-			printf("Richiedi File: ");
-			scanf("%s", file);
-			strcat(buffer, file);
+		/*
+		###
+		# PARTE INSERITA DA DARIO
+		###
+		*/
+		printf("Richiedi File: ");
+		scanf("%s", file);
+		if(file[0] == 'Q'){
+			printf("dentro if\n");
+			sprintf(buffer, "%s", "Q");
 			strcat(buffer, "\r\n");
 			Send(listenfd, buffer, strlen(buffer),0);
-			/*dopo 5 sec chiude se ci sono problemi */
-			struct timeval tv;
-			tv.tv_sec = 5;
-			tv.tv_usec = 0;
-			if (setsockopt(listenfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
-					perror("Error");
-			}
-			/*--------------------------------------*/
-
-			int k=Recv(listenfd, buffer, 5,0);
-			/*dopo 5 sec chiude se ci sono problemi */
-			tv.tv_sec = 5;
-			tv.tv_usec = 0;
-			if (setsockopt(listenfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
-					perror("Error");
-			}
-			/*--------------------------------------*/
-
-			if (k==0) {
-				printf("Connection Closed by Server");
-				break;
-			}
-			buffer[5]='\0';
-			printf("%s", buffer);
-			if (buffer[0]=='-') {
-				printf("File inesistente\n");
-				printf("%s\n", buffer);
-				close(listenfd);
-				break;
-			}
-			Recv(listenfd, buffer,4,0);
-			/*dopo 5 sec chiude se ci sono problemi */
-			tv.tv_sec = 5;
-			tv.tv_usec = 0;
-			if (setsockopt(listenfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
-					perror("Error");
-			}
-			/*--------------------------------------*/
-
-			size=ntohl(*((uint32_t*)buffer));
-			printf("Dimensione in byte ricevuti dal server: %u\n", size);
-			Recv(listenfd, buffer, 4,0);
-			/*dopo 5 sec chiude se ci sono problemi */
-			tv.tv_sec = 5;
-			tv.tv_usec = 0;
-			if (setsockopt(listenfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
-					perror("Error");
-			}
-			/*--------------------------------------*/
-			printf("Timestamp ricevuto dal server: %u\n", ntohl(*((uint32_t*)buffer)));
-			char lettura[1025];
-			FILE *fp;
-			fp=fopen(file, "wb");
-			while (size>0) {
-				if (size>=1024) {
-					Recv(listenfd,lettura,1024,0);
-					/*dopo 5 sec chiude se ci sono problemi */
-					tv.tv_sec = 5;
-					tv.tv_usec = 0;
-					if (setsockopt(listenfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
-							perror("Error");
-					}
-					/*--------------------------------------*/
-					size=size-1024;
-					fwrite(lettura, 1, 1024, fp);
-				}
-				else {
-					Recv(listenfd,lettura,size,0);
-					/*dopo 5 sec chiude se ci sono problemi */
-					tv.tv_sec = 5;
-					tv.tv_usec = 0;
-					if (setsockopt(listenfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
-							perror("Error");
-					}
-					/*--------------------------------------*/
-					lettura[size]='\0';
-					fwrite(lettura, 1, size, fp);
-					fclose(fp);
-					size=0;
-			}
-		}/*CHIUSURA WHILE SIZE*/
-		break;
-
-/*
-			case 'Q':
-			case 'q':
-
-			case 'A':
-			case 'a':
-
-			default:
-*/
+			exit(0);
 		}
+		else{
+		sprintf(buffer, "%s", "GET");
+		strcat(buffer, " ");
+		strcat(buffer, file);
+		strcat(buffer, "\r\n");
+		Send(listenfd, buffer, strlen(buffer),0);
+
+		/*dopo 5 sec chiude se ci sono problemi */
+		tv.tv_sec = 5;
+		tv.tv_usec = 0;
+		if (setsockopt(listenfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
+				perror("Error");
+		}
+		/*--------------------------------------*/
+	 }
+
+		/*
+		###
+		# PARTE COMMENTATA FIX A BIAGIO
+		###
+		*/
+		/*
+	  sprintf(buffer, "%s", "GET");
+	  strcat(buffer, " ");
+	  printf("Richiedi File: ");
+	  scanf("%s", file);
+	  strcat(buffer, file);
+	  strcat(buffer, "\r\n");
+	  Send(listenfd, buffer, strlen(buffer),0);
+		*/
+
+		/*dopo 5 sec chiude se ci sono problemi */
+    /*
+		struct timeval tv;
+    tv.tv_sec = 5;
+    tv.tv_usec = 0;
+    if (setsockopt(listenfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
+        perror("Error");
+    }
+		*/
+		/*--------------------------------------*/
 
 
+	  int k=Recv(listenfd, buffer, 5,0);
+		/*dopo 5 sec chiude se ci sono problemi */
+		tv.tv_sec = 5;
+		tv.tv_usec = 0;
+		if (setsockopt(listenfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
+				perror("Error");
+		}
+		/*--------------------------------------*/
+
+	  if (k==0) {
+	    printf("Connection Closed by Server");
+	    break;
+	  }
+	  buffer[5]='\0';
+	  printf("%s", buffer);
+	  if (buffer[0]=='-') {
+	    printf("File inesistente\n");
+	    printf("%s\n", buffer);
+	    close(listenfd);
+	    break;
+	  }
+	  Recv(listenfd, buffer,4,0);
+		/*dopo 5 sec chiude se ci sono problemi */
+		tv.tv_sec = 5;
+		tv.tv_usec = 0;
+		if (setsockopt(listenfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
+				perror("Error");
+		}
+		/*--------------------------------------*/
+
+	  size=ntohl(*((uint32_t*)buffer));
+	  printf("Dimensione in byte ricevuti dal server: %u\n", size);
+	  Recv(listenfd, buffer, 4,0);
+		/*dopo 5 sec chiude se ci sono problemi */
+		tv.tv_sec = 5;
+		tv.tv_usec = 0;
+		if (setsockopt(listenfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
+				perror("Error");
+		}
+		/*--------------------------------------*/
+	  printf("Timestamp ricevuto dal server: %u\n", ntohl(*((uint32_t*)buffer)));
+	  char lettura[1025];
+	  FILE *fp;
+	  fp=fopen(file, "wb");
+	  while (size>0) {
+	    if (size>=1024) {
+	      Recv(listenfd,lettura,1024,0);
+				/*dopo 5 sec chiude se ci sono problemi */
+				tv.tv_sec = 5;
+				tv.tv_usec = 0;
+				if (setsockopt(listenfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
+						perror("Error");
+				}
+				/*--------------------------------------*/
+	      size=size-1024;
+	      fwrite(lettura, 1, 1024, fp);
+	    }
+			else {
+		    Recv(listenfd,lettura,size,0);
+				/*dopo 5 sec chiude se ci sono problemi */
+				tv.tv_sec = 5;
+				tv.tv_usec = 0;
+				if (setsockopt(listenfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
+						perror("Error");
+				}
+				/*--------------------------------------*/
+		    lettura[size]='\0';
+		    fwrite(lettura, 1, size, fp);
+		    fclose(fp);
+		    size=0;
+	  }
+	}/*CHIUSURA PRIMA WHILE*/
 }/*CHIUSURA SECONDO WHILE*/
 close(listenfd);
 
