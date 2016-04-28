@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
   char 					buffer[500];
   char 					file[20];
 	struct        sockaddr_in	saddr;
+	struct				timeval tv;
 
 
 	prog_name = argv[0];
@@ -61,6 +62,42 @@ int main(int argc, char *argv[]) {
 
 
   while(1) {
+		/*
+		###
+		# PARTE INSERITA DA DARIO
+		###
+		*/
+		printf("Richiedi File: ");
+		scanf("%s", file);
+		if(file[0] == 'Q'){
+			printf("dentro if\n");
+			sprintf(buffer, "%s", "Q");
+			strcat(buffer, "\r\n");
+			Send(listenfd, buffer, strlen(buffer),0);
+			exit(0);
+		}
+		else{
+		sprintf(buffer, "%s", "GET");
+		strcat(buffer, " ");
+		strcat(buffer, file);
+		strcat(buffer, "\r\n");
+		Send(listenfd, buffer, strlen(buffer),0);
+
+		/*dopo 5 sec chiude se ci sono problemi */
+		tv.tv_sec = 5;
+		tv.tv_usec = 0;
+		if (setsockopt(listenfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
+				perror("Error");
+		}
+		/*--------------------------------------*/
+	 }
+
+		/*
+		###
+		# PARTE COMMENTATA FIX A BIAGIO
+		###
+		*/
+		/*
 	  sprintf(buffer, "%s", "GET");
 	  strcat(buffer, " ");
 	  printf("Richiedi File: ");
@@ -68,14 +105,19 @@ int main(int argc, char *argv[]) {
 	  strcat(buffer, file);
 	  strcat(buffer, "\r\n");
 	  Send(listenfd, buffer, strlen(buffer),0);
+		*/
+
 		/*dopo 5 sec chiude se ci sono problemi */
-    struct timeval tv;
+    /*
+		struct timeval tv;
     tv.tv_sec = 5;
     tv.tv_usec = 0;
     if (setsockopt(listenfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
         perror("Error");
     }
+		*/
 		/*--------------------------------------*/
+
 
 	  int k=Recv(listenfd, buffer, 5,0);
 		/*dopo 5 sec chiude se ci sono problemi */
