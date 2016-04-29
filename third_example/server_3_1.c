@@ -1,6 +1,6 @@
 /*
 ***AUTORE: Dario Platania 'dariopl91@gmail.com', Marzo 2016
-gcc -g -Wall -DTRACE -o server server.c errlib.c sockwrap.c
+gcc -g -Wall -DTRACE -o server_3_1 server_3_1.c errlib.c sockwrap.c
 */
 
 #include <stdio.h>

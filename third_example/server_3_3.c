@@ -1,6 +1,6 @@
 /*
 ***AUTORE: Dario Platania 'dariopl91@gmail.com', Marzo 2016
-gcc -g -Wall -DTRACE -o server server.c errlib.c sockwrap.c
+gcc -g -Wall -DTRACE -o server_3_3 server_3_3.c errlib.c sockwrap.c
 */
 
 #include <stdio.h>
@@ -61,6 +61,10 @@ int main(int argc, char **argv)
     err_quit("wrong number of parameters e.g. ./server 'port' 'child_number'", prog_name);
     tport_n=atoi(argv[1]);
     nchildren = atoi(argv[2]);
+    if(nchildren>10){
+      err_quit("You can not create more than 10 child process", prog_name);
+    }
+
 
     /* create socket */
   	listenfd = Socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
