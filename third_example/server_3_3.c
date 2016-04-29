@@ -104,7 +104,13 @@ int main(int argc, char **argv)
               while(1){
                 byte_ricevuti=Recv(ac, lettura, 255, 0);
                 lettura[byte_ricevuti]='\0';
+                /*Se ricevo Q esce*/
                 if (lettura[0]=='Q') break;
+                /*Se ricevo ctrl-c esce*/
+                if(*lettura == '\0'){
+                  trace( err_msg ("(%s) - connection closed by client", prog_name) );
+                  break;
+                }
                 printf("File Richiesto: %s", lettura);
                 j=4;
                 for (i=0; i<byte_ricevuti; i++){
