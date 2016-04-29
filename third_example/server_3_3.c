@@ -100,11 +100,62 @@ int main(int argc, char **argv)
             addrlen = sizeof(struct sockaddr_in);
             ac = Accept(listenfd, (struct sockaddr*) &clientaddr, &addrlen);
             trace ( err_msg("(%s) - new connection from client %s:%u", prog_name, inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port)));
-            Recv(ac, msg, sizeof(msg), 0);
-            //break;
-            }
-        }
-    }
+
+              while(1){
+                byte_ricevuti=Recv(ac, lettura, 255, 0);
+                lettura[byte_ricevuti]='\0';
+                if (lettura[0]=='Q') break;
+                printf("File Richiesto: %s", lettura);
+                j=4;
+                for (i=0; i<byte_ricevuti; i++){
+                    if (lettura[j]=='\r') break;
+                    file[i]=lettura[j];
+                    j++;
+                  }
+                    file[i]='\0';
+                printf("Nome file effettivo: %s\n", file);
+                fp=fopen(file, "r");
+                if (fp==NULL) {
+                printf("Il file non esiste!\n");
+                Send(ac, "-ERR\r\n", 6, 0);
+                close(ac);
+                break;
+                }
+                /*FILE ESISTENTE--INVIO +OK CR LF*/
+                Send(ac, "+OK\r\n", 5, 0);
+
+                  /*DIMENSIONE FILE*/
+                  stat(file, &sstr);
+
+                  size1=((uint32_t)sstr.st_size);
+                  printf("Numero di byte su file: %u\n", size1);
+                  size=htonl(((uint32_t)sstr.st_size));
+                  Send(ac, &size, 4,0); //mando la size
+
+                  /*TIMESTAMP*/
+                  timestamp=((uint32_t)sstr.st_mtime);
+                  printf("Timestamp: %d\n", timestamp);
+                  timestamp=htonl(((uint32_t)sstr.st_mtime));
+                  Send(ac, &timestamp, 4,0);
+
+                  /*LEGGO IL FILE E LO MANDO A PEZZI DI 1024*/
+                  while (size1>0) {
+                    if (size1>=1024) {
+                      fread(sendbuff, 1, 1024, fp);
+                      Send(ac, sendbuff, 1024, 0);
+                      size1=size1-1024;
+                    }
+                    else {
+                      fread(sendbuff, 1, size1, fp);
+                      Send(ac, sendbuff, size1, 0);
+                      fclose(fp);
+                      size1=0;
+                   }
+                  }
+                }/*CHIUSURA WHILE RECV*/
+            }/*CHIUSURA WHILE NEW CONNECTION*/
+        }/*CHIUSURA ELSE*/
+    }/*CHIUSURA FOR*/
     while(1){}
 return 0;
 }
