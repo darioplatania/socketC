@@ -19,6 +19,7 @@ gcc -g -Wall -DTRACE -o server_3_3 server_3_3.c errlib.c sockwrap.c
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 #include "errlib.h"
 #include "sockwrap.h"
@@ -51,9 +52,20 @@ FILE          *fp;
 int           byte_ricevuti;
 int           i;
 int           nchildren = 0;
-int           childpid = 0;
+int           *childpid;
 char          msg[200];
 int           n;
+int           status;
+int i;
+
+void sighandler(){
+  for(i = 0; i < nchildren; i++){
+    kill(childpid[i],SIGTERM);
+  }
+  while (wait(&status)>0);
+    exit(0);
+}
+
 
 int main(int argc, char **argv)
 {
@@ -86,12 +98,14 @@ int main(int argc, char **argv)
 
     /*LISTEN*/
     Listen(listenfd, 10); //LISTENQ NUMERO DI RICHIESTE PENDENTI
+
+    childpid=calloc(nchildren,sizeof(pid_t)); /*mi alloco lo spazio necessario*/
     for(i = 0; i < nchildren; i++){
 
-      if((childpid=fork())<0)
+      if((childpid[i]=fork())<0)
       err_msg("fork() failed");
 
-        else if (childpid > 0)
+        else if (childpid[i] > 0)
         {
         /* processo padre */
         }
@@ -107,7 +121,7 @@ int main(int argc, char **argv)
               while(1){
                 /*inizio struttura select*/
                 FD_ZERO(&cset); FD_SET(ac,&cset);
-                int t = 120;
+                int t = 5;
                 tval.tv_sec = t;
                 tval.tv_usec = 0;
                 n = Select(FD_SETSIZE,&cset,NULL,NULL,&tval);
@@ -180,6 +194,8 @@ int main(int argc, char **argv)
           }/*CHIUSURA WHILE CONNECTION*/
         }/*CHIUSURA ELSE*/
     }/*CHIUSURA FOR*/
-    while(1){}
+    while(1){
+      signal(SIGINT,sighandler);
+    }
 return 0;
 }
