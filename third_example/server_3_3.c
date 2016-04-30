@@ -41,6 +41,8 @@ char          lettura[255];
 char          sendbuff[1025];
 char          file[50];
 struct        stat sstr;
+struct        timeval tval;
+fd_set        cset;
 int           i=0;
 int           j=0;
 int           size1;
@@ -51,6 +53,7 @@ int           i;
 int           nchildren = 0;
 int           childpid = 0;
 char          msg[200];
+int           n;
 
 int main(int argc, char **argv)
 {
@@ -102,6 +105,15 @@ int main(int argc, char **argv)
             trace ( err_msg("(%s) - new connection from client %s:%u", prog_name, inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port)));
 
               while(1){
+                /*inizio struttura select*/
+                FD_ZERO(&cset); FD_SET(ac,&cset);
+                int t = 120;
+                tval.tv_sec = t;
+                tval.tv_usec = 0;
+                n = Select(FD_SETSIZE,&cset,NULL,NULL,&tval);
+                /*fine struttura select*/
+
+                if(n>0){
                 byte_ricevuti=Recv(ac, lettura, 255, 0);
                 lettura[byte_ricevuti]='\0';
                 /*Se ricevo Q esce*/
@@ -158,8 +170,14 @@ int main(int argc, char **argv)
                       size1=0;
                    }
                   }
-                }/*CHIUSURA WHILE RECV*/
-            }/*CHIUSURA WHILE NEW CONNECTION*/
+                }/*CHIUSURA IF RECV */
+              else{
+                close(ac);
+                printf("No response after %d second\n",t );
+                break;
+              }/*CHIUSURA ELSE NO_RESPONSE*/
+            }/*CHIUSURA WHILE RECV*/
+          }/*CHIUSURA WHILE CONNECTION*/
         }/*CHIUSURA ELSE*/
     }/*CHIUSURA FOR*/
     while(1){}
