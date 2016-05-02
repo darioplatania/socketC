@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
 		# PARTE INSERITA DA DARIO
 		###
 		*/
-		printf("Richiedi File: ");
+		printf("Richiedi File: (Premere Q or q + Invio per uscire)\n");
 		scanf("%s", file);
 		if(file[0] == 'Q' || file[0] == 'q'){
 			printf("Quit..\n");
