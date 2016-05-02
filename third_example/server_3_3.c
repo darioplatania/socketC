@@ -121,7 +121,7 @@ int main(int argc, char **argv)
               while(1){
                 /*inizio struttura select*/
                 FD_ZERO(&cset); FD_SET(ac,&cset);
-                int t = 5;
+                int t = 120;
                 tval.tv_sec = t;
                 tval.tv_usec = 0;
                 n = Select(FD_SETSIZE,&cset,NULL,NULL,&tval);
