@@ -98,7 +98,14 @@ while(1) {
     while(1){
     byte_ricevuti=Recv(ac, read, 255, 0);
     read[byte_ricevuti]='\0';
+    /*Se ricevo Q esce*/
     if (read[0]=='Q') break;
+    /*Se ricevo ctrl-c esce*/
+    if(*read == '\0'){
+      trace( err_msg ("(%s) - connection closed by client", prog_name) );
+      trace( err_msg ("(%s) waiting for connections ...", prog_name) );/*se chiudo con ctrl-c questa trace mi stampa il waiting prima di fare il break e tornare  sull'accept*/
+      break;
+    }
     printf("File Richiesto: %s", read);
     j=4;
     for (i=0; i<byte_ricevuti; i++){
