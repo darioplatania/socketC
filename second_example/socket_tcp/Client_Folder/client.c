@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
 		printf("Richiedi File: ");
 		scanf("%s", file);
 		if(file[0] == 'Q'){
-			printf("dentro if\n");
+			printf("--Socket Chiusa--\n");
 			sprintf(buffer, "%s", "Q");
 			strcat(buffer, "\r\n");
 			Send(listenfd, buffer, strlen(buffer),0);
