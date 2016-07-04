@@ -69,9 +69,9 @@ int main(int argc, char *argv[]) {
 		*/
 		printf("Richiedi File: ");
 		scanf("%s", file);
-		if(file[0] == 'Q'){
-			printf("--Socket Chiusa--\n");
-			sprintf(buffer, "%s", "Q");
+		if(strncmp(file, "QUIT", (size_t)4) == 0){
+			//printf("--Socket Chiusa--\n");
+			sprintf(buffer, "%s", "QUIT");
 			strcat(buffer, "\r\n");
 			Send(listenfd, buffer, strlen(buffer),0);
 			exit(0);

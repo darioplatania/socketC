@@ -86,7 +86,11 @@ while(1) {
 while(1){
 byte_ricevuti=Recv(ac, read, 255, 0);
 read[byte_ricevuti]='\0';
-if (read[0]=='Q') break;
+if (strncmp(read, "QUIT", (size_t)4) == 0)
+{
+  close(ac);
+  break;
+}
 printf("File Richiesto: %s", read);
 j=4;
 for (i=0; i<byte_ricevuti; i++){
