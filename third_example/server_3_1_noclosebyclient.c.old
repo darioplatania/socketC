@@ -3,6 +3,10 @@
 gcc -g -Wall -DTRACE -o server_3_1 server_3_1.c errlib.c sockwrap.c
 */
 
+/*
+*** SERVER TCP LAB 3.1 CON GESTIONE 3 CLIENT E TIMEOUT (APPELLO GIUGNO)***
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -120,16 +124,7 @@ int main(int argc, char *argv[]) {
       while(1) {
         setsockopt (ac, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
         byte_ricevuti=Recv(ac, read, 255, 0);
-        if(byte_ricevuti == 0) {
-          trace(err_msg ("(%s) - connection closed by client\n", prog_name));
-          close(ac);
-          break;
-        }
-        if(byte_ricevuti < 0) {
-          err_ret("(%s) - error recv() failed\n");
-          close(ac);
-          break;
-        }
+        read[byte_ricevuti]='\0';
         /*Se ricevo Q esce*/
         if (strncmp(read, "QUIT", (size_t)4) == 0)
           break;
